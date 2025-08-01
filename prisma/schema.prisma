@@ -15,6 +15,7 @@ model User {
   photo       String?
   emails      Email[]
   ats         Ats[]
+  blogs       Blogs[]
 }
 
 model Email {
@@ -36,8 +37,7 @@ model Ats {
 
 model Blogs {
   id                String   @id   @default(uuid())
-  title             String
-  summary           String 
-  readTime          Int
-  ref               String
+  count             Int 
+  userId            String
+  admin             User   @relation(fields: [userId], references: [id])
 }
