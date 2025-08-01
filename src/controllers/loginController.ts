@@ -108,10 +108,17 @@ export const dashboardInfo = async (req:Request,res:Response) => {
             }
         })
 
+        const countBlog = await prismaClient.blogs.count({
+            where:{
+                userId:user.userId
+            }
+        })
+
         return res.status(200).json({
             body:{
                 email:countEmail,
-                countAts:countAts
+                ats:countAts,
+                blog:countBlog
             }
         })
         

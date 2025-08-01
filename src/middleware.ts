@@ -13,12 +13,8 @@ if (!JWT_SECRET) {
 
 export const middleware = (req:Request,res:Response,next:NextFunction) => {
     const token = req.headers["authorization"] ?? "";
-
-    console.log(token)
     
     const decoded = jwt.verify(token,JWT_SECRET)
-
-    console.log(decoded)
 
     if(typeof decoded==="object" && "userId" in decoded) {
         req.userId = decoded.userId
