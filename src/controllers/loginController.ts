@@ -1,4 +1,4 @@
-import { Request,Response } from "express";
+import { Request,Response,NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import * as dotenv from 'dotenv';
@@ -54,8 +54,6 @@ export const signUp = async (req:Request,res:Response) => {
 
 }
 
-
-
 export const logIn = async (req:Request,res:Response) => {
     const data = logInBody.safeParse(req.body)
 
@@ -91,4 +89,37 @@ export const logIn = async (req:Request,res:Response) => {
             body:"internal server error"
         })
     }
+}
+
+export const dashboardInfo = async (req:Request,res:Response) => {
+
+    const user = req.body
+
+    try {
+        const countEmail = await prismaClient.email.count({
+            where:{
+                userId:user.userId
+            }
+        })
+
+        const countAts = await prismaClient.ats.count({
+            where:{
+                userId:user.userId
+            }
+        })
+
+        return res.status(200).json({
+            body:{
+                email:countEmail,
+                countAts:countAts
+            }
+        })
+        
+    } catch {
+        res.status(500).json({
+            body:"internal server error"
+        })
+    }
+    
+
 }
