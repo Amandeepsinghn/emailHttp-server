@@ -1,6 +1,7 @@
 import { NextFunction,Request,Response } from "express";
 import jwt from "jsonwebtoken";
 import * as dotenv from 'dotenv';
+import { string } from "zod";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ export const middleware = (req:Request,res:Response,next:NextFunction) => {
     if(typeof decoded==="object" && "userId" in decoded) {
         req.userId = decoded.userId
         next();
+    
+
     } else {
         res.status(403).json({
             message:"Unauthorized"

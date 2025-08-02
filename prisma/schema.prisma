@@ -30,9 +30,11 @@ model Ats {
   id                String   @id  @default(uuid())
   name              String   
   score             Int
-  improve_points    String[]
+  good              String[]
+  bad               String[]
+  area_improvement  String[]
   userId            String 
-  admin              User     @relation(fields: [userId],references: [id])  
+  admin             User     @relation(fields: [userId],references: [id])  
 }
 
 model Blogs {
