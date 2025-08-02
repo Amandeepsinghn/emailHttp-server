@@ -38,6 +38,6 @@ model Ats {
 model Blogs {
   id                String   @id   @default(uuid())
   count             Int 
-  userId            String
+  userId            String   @unique
   admin             User   @relation(fields: [userId], references: [id])
 }
