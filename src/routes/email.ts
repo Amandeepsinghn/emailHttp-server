@@ -18,5 +18,7 @@ const upload = multer({ storage });
 
 router.post("/sendEmail", middleware, emailSender);
 router.post("/uploadResume", middleware, upload.single("file"), uploadResume);
+router.get("/pdfbody", middleware);
+router.get("/formalTone", middleware);
 
 export const emailRouter: Router = router;
