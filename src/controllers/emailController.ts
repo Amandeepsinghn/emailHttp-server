@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 import { Request, Response } from "express";
+import { prismaClient } from "../prisma";
+import fs from "fs";
+import pdf from "pdf-parse";
 
 export const emailSender = async (req: Request, res: Response) => {
   const transporter = nodemailer.createTransport({
@@ -26,4 +29,22 @@ export const emailSender = async (req: Request, res: Response) => {
   return res.status(200).json({
     body: "mail has been sent successfully",
   });
+};
+
+export const uploadResume = async (req: Request, res: Response) => {
+  if (!req.file) {
+    return res.status(400).json({
+      body: "Please upload a file first",
+    });
+  }
+
+  try {
+    return res.status(200).json({
+      body: req.file.destination + req.file.filename,
+    });
+  } catch {
+    res.status(500).json({
+      body: "Internal servor Error",
+    });
+  }
 };
