@@ -1,8 +1,8 @@
-import { Request,Response,NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
-import * as dotenv from 'dotenv';
-import {email, z} from "zod";
+import * as dotenv from "dotenv";
+import { email, z } from "zod";
 import { prismaClient } from "../prisma";
 import { Interface } from "readline";
 dotenv.config();
@@ -10,171 +10,159 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-    throw new Error("JWT SECRET is not defined in environment variables.")
+  throw new Error("JWT SECRET is not defined in environment variables.");
 }
 
 export const signUpBody = z.object({
-    name:z.string().min(1).max(60),
-    email:z.email(),
-    password:z.string().min(1).max(50)
-})
+  name: z.string().min(1).max(60),
+  email: z.email(),
+  password: z.string().min(1).max(50),
+});
 
 export const logInBody = z.object({
-    email:z.email(),
-    password:z.string().min(1).max(60)
-})
+  email: z.email(),
+  password: z.string().min(1).max(60),
+});
 
+export const signUp = async (req: Request, res: Response) => {
+  const data = signUpBody.safeParse(req.body);
 
-export const signUp = async (req:Request,res:Response) => {
-    const data = signUpBody.safeParse(req.body)
+  if (!data.success) {
+    return res.status(404).json({
+      body: "please enter valid email,password,name",
+    });
+  }
 
-    if(!data.success) {
-        return res.status(404).json({
-            body:"please enter valid email,password,name"
-        })
+  try {
+    const alreadyPresent = await prismaClient.user.findMany({
+      where: {
+        email: data.data.email,
+        password: data.data.password,
+        name: data.data.name,
+      },
+    });
+
+    if (alreadyPresent) {
+      return res.status(404).json({
+        body: "user already exsist",
+      });
     }
 
-    try {
+    await prismaClient.user.create({
+      data: {
+        email: data.data.email,
+        password: data.data.password,
+        name: data.data.name,
+      },
+    });
+    res.status(200).json({
+      body: "user inserted",
+    });
+  } catch {
+    res.status(500).json({
+      body: "internal server error",
+    });
+  }
+};
 
-        const alreadyPresent = await prismaClient.user.findMany({
-            where:{
-                email:data.data.email,
-                password:data.data.password,
-                name:data.data.name,
-            }
-        })
+export const logIn = async (req: Request, res: Response) => {
+  const data = logInBody.safeParse(req.body);
 
-        if(alreadyPresent) {
-            return res.status(404).json({
-                body:"user already exsist"
-            })
-        }
+  if (!data.success) {
+    return res.status(404).json({
+      body: "please enter valid email,password",
+    });
+  }
 
+  try {
+    const user = await prismaClient.user.findFirst({
+      where: {
+        email: data.data.email,
+        password: data.data.password,
+      },
+    });
 
-        await prismaClient.user.create({
-            data:{
-                email:data.data.email,
-                password:data.data.password,
-                name:data.data.name,
-            }
-        })
-        res.status(200).json({
-            body:"user inserted"
-        })
-    } catch {
-        res.status(500).json({
-            body:"internal server error"
-        })
+    if (!user) {
+      res.status(404).json({
+        body: "user does not exsist",
+      });
+      return;
     }
 
-}
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET);
 
-export const logIn = async (req:Request,res:Response) => {
-    const data = logInBody.safeParse(req.body)
+    res.status(200).json({
+      body: token,
+    });
+  } catch {
+    res.status(500).json({
+      body: "internal server error",
+    });
+  }
+};
 
-    if(!data.success) {
-        return res.status(404).json({
-            body:"please enter valid email,password"
-        })
-    }
+export const dashboardInfo = async (req: Request, res: Response) => {
+  if (!req.userId) {
+    return res.status(404).json({
+      body: "user id does not exsist",
+    });
+  }
 
-    try {
-        const user =  await prismaClient.user.findFirst({
-            where:{
-                email:data.data.email,
-                password:data.data.password
-            }
-        })
-        
-        if(!user) {
-            res.status(404).json({
-                body:"user does not exsist"
-            })
-            return 
-        }
+  try {
+    const countEmail = await prismaClient.email.count({
+      where: {
+        userId: req.userId,
+      },
+    });
 
-        const token = jwt.sign({userId:user.id},JWT_SECRET)
-        
-        res.status(200).json({
-            body:token
-        })
+    const countAts = await prismaClient.ats.count({
+      where: {
+        userId: req.userId,
+      },
+    });
 
-    } catch {
-        res.status(500).json({
-            body:"internal server error"
-        })
-    }
-}
+    const countBlog = await prismaClient.blogs.count({
+      where: {
+        userId: req.userId,
+      },
+    });
 
-export const dashboardInfo = async (req:Request,res:Response) => {
+    return res.status(200).json({
+      body: {
+        email: countEmail,
+        ats: countAts,
+        blog: countBlog,
+      },
+    });
+  } catch {
+    res.status(500).json({
+      body: "internal server error",
+    });
+  }
+};
 
-    if(!req.userId) {
-        return res.status(404).json({
-            body:"user id does not exsist"
-        })
-    }
+export const blogsInfo = async (req: Request, res: Response) => {
+  const user = req.body;
 
-    try {
-        const countEmail = await prismaClient.email.count({
-            where:{
-                userId:req.userId
-            }
-        })
+  if (!req.userId) {
+    return res.status(404).json({
+      body: "does not found the field",
+    });
+  }
 
-        const countAts = await prismaClient.ats.count({
-            where:{
-                userId:req.userId
-            }
-        })
+  try {
+    const data = await prismaClient.blogs.upsert({
+      where: { userId: req.userId },
+      update: { count: user.count },
+      create: { userId: req.userId, count: user.count },
+    });
 
-        const countBlog = await prismaClient.blogs.count({
-            where:{
-                userId:req.userId
-            }
-        })
-
-        return res.status(200).json({
-            body:{
-                email:countEmail,
-                ats:countAts,
-                blog:countBlog
-            }
-        })
-        
-    } catch {
-        res.status(500).json({
-            body:"internal server error"
-        })
-    }
-    
-
-}
-
-export const blogsInfo = async (req:Request,res:Response) => {
-    const user = req.body 
-
-    if (!req.userId) {
-        return res.status(404).json({
-            body:"does not found the field"
-        })
-    }
-
-    try {
-
-        const data = await prismaClient.blogs.upsert({
-            where:{userId:req.userId},
-            update:{count:user.count},
-            create:{userId:req.userId,count:user.count}
-        })
-
-        return res.status(200).json({
-            count:data.count
-        })
-
-
-    } catch {
-        res.status(500).json({
-            body:"Internal server error"
-        })
-    }
-}
+    return res.status(200).json({
+      count: data.count,
+    });
+  } catch {
+    res.status(500).json({
+      body: "Internal server error",
+    });
+  }
+};
