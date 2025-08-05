@@ -105,3 +105,46 @@ export const formalBody = async (text: String) => {
     return "Please try again later";
   }
 };
+
+export const pdfScan = async (text: String) => {
+  const headers = {
+    Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+    "Content-Type": "application/json",
+  };
+
+  const data = {
+    model: "Compound-Beta",
+    messages: [
+      {
+        role: "user",
+        content: `You are an expert in professional email writing for job applications and referrals. Based on the content of the candidate's resume, generate a well-written, formal, and concise email body that the candidate can send to a company's HR, recruiter, or leadership (e.g., CEO) when applying for a job or requesting a referral.
+
+      Requirements:
+      - The email should reflect the candidate's background and strengths, extracted from the resume.
+      - Maintain a polite and professional tone.
+      - Clearly express interest in job opportunities or referrals.
+      - Keep the structure clean with proper opening and closing.
+      - Do not include a subject line.
+      - Do not include the resume text in the output.
+
+      Input (Resume):
+      """${text}"""
+
+      Output:
+      Return only the professionally written email body tailored to the resume content. Do not include commentary, formatting, or subject line.`,
+      },
+    ],
+    temperature: 0.7,
+    max_tokens: 1024,
+  };
+  try {
+    const response = await axios.post(process.env.GROQ_API_URL, data, { headers });
+
+    const test = response.data.choices[0].message.content;
+
+    return test;
+  } catch (error) {
+    console.log(error);
+    return "Please try again later";
+  }
+};
