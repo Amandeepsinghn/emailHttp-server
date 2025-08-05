@@ -4,6 +4,7 @@ import { prismaClient } from "../prisma";
 import fs from "fs";
 import pdf from "pdf-parse";
 import { formalBody, pdfScan } from "../utils";
+import { file } from "zod";
 
 export const emailSender = async (req: Request, res: Response) => {
   const transporter = nodemailer.createTransport({
@@ -22,10 +23,20 @@ export const emailSender = async (req: Request, res: Response) => {
       to: req.body.emailSender[i],
       subject: req.body.subject,
       text: req.body.text,
+      attachments: [
+        {
+          filename: req.body.filename,
+          path: "emails/" + req.body.filename,
+          contentType: "application/pdf",
+        },
+      ],
     };
 
     await transporter.sendMail(mailOptions);
   }
+  // Removing the pdf file
+  const filePath = "emails/" + req.body.filename;
+  fs.unlinkSync(filePath);
 
   return res.status(200).json({
     body: "mail has been sent successfully",
@@ -41,7 +52,7 @@ export const uploadResume = async (req: Request, res: Response) => {
 
   try {
     return res.status(200).json({
-      body: req.file.destination + req.file.filename,
+      body: req.file.filename,
     });
   } catch {
     res.status(500).json({
