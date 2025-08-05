@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { prismaClient } from "../prisma";
 import fs from "fs";
 import pdf from "pdf-parse";
+import { formalBody } from "../utils";
 
 export const emailSender = async (req: Request, res: Response) => {
   const transporter = nodemailer.createTransport({
@@ -47,4 +48,27 @@ export const uploadResume = async (req: Request, res: Response) => {
       body: "Internal servor Error",
     });
   }
+};
+
+export const formalTone = async (req: Request, res: Response) => {
+  const data = req.body.data;
+
+  try {
+    const response = await formalBody(data);
+
+    return res.status(200).json({
+      body: response,
+    });
+  } catch {
+    res.status(500).json({
+      body: "Internal servor Error",
+    });
+  }
+};
+
+export const pdfBody = async (req: Request, res: Response) => {
+  const data = req.body.data;
+
+  try {
+  } catch {}
 };

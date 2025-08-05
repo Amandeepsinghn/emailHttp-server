@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import { middleware } from "../middleware";
-import { emailSender, uploadResume } from "../controllers/emailController";
+import { emailSender, formalTone, uploadResume } from "../controllers/emailController";
 import multer from "multer";
 
 const router = express.Router();
@@ -18,7 +18,7 @@ const upload = multer({ storage });
 
 router.post("/sendEmail", middleware, emailSender);
 router.post("/uploadResume", middleware, upload.single("file"), uploadResume);
-router.get("/pdfbody", middleware);
-router.get("/formalTone", middleware);
+router.post("/pdfbody", middleware);
+router.post("/formalTone", middleware, formalTone);
 
 export const emailRouter: Router = router;
