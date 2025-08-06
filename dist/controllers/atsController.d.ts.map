@@ -1,0 +1,1 @@
+{"version":3,"file":"atsController.d.ts","sourceRoot":"","sources":["../../src/controllers/atsController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAC,QAAQ,EAAe,MAAM,SAAS,CAAC;AAiBxD,eAAO,MAAM,UAAU,GAAU,KAAI,OAAO,EAAC,KAAI,QAAQ,4DAwBxD,CAAA;AAED,eAAO,MAAM,UAAU,GAAU,KAAI,OAAO,EAAC,KAAI,QAAQ,4DAkDxD,CAAA;AAED,eAAO,MAAM,eAAe,GAAS,KAAI,OAAO,EAAC,KAAI,QAAQ,4DAgC5D,CAAA"}
