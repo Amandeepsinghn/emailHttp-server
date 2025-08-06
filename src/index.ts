@@ -21,6 +21,6 @@ app.use("/api", userRouter);
 app.use("/api", atsRouter);
 app.use("/api", emailRouter);
 
-app.listen(3000);
+app.listen(3000, () => console.log("Server ready on port 3000."));
 
 module.exports = app;
