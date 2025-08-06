@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "build": "rimraf dist && tsc",
+    "build": "tsc -b",
     "postinstall": "npx prisma generate"
   },
   "repository": {

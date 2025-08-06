@@ -1,0 +1,1 @@
+{"root":["./src/index.ts","./src/middleware.ts","./src/prisma.ts","./src/utils.ts","./src/controllers/atsController.ts","./src/controllers/emailController.ts","./src/controllers/loginController.ts","./src/routes/ats.ts","./src/routes/email.ts","./src/routes/user.ts"],"version":"5.9.2"}
