@@ -22,3 +22,5 @@ app.use("/api", atsRouter);
 app.use("/api", emailRouter);
 
 app.listen(3000);
+
+module.exports = app;
