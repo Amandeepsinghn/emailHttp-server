@@ -14,6 +14,5 @@ app.use((0, cors_1.default)());
 app.use("/api", user_1.userRouter);
 app.use("/api", ats_1.atsRouter);
 app.use("/api", email_1.emailRouter);
-app.listen(3000);
-module.exports = app;
+app.listen(3000, () => console.log("Server ready on port 3000."));
 //# sourceMappingURL=index.js.map
