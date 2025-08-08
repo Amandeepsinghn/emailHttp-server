@@ -34,7 +34,7 @@ export const signUp = async (req: Request, res: Response) => {
   }
 
   try {
-    const alreadyPresent = await prismaClient.user.findMany({
+    const alreadyPresent = await prismaClient.user.findUnique({
       where: {
         email: data.data.email,
         password: data.data.password,
