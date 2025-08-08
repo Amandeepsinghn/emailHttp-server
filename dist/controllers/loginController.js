@@ -72,7 +72,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     try {
-        const alreadyPresent = yield prisma_1.prismaClient.user.findMany({
+        const alreadyPresent = yield prisma_1.prismaClient.user.findUnique({
             where: {
                 email: data.data.email,
                 password: data.data.password,
@@ -80,7 +80,7 @@ const signUp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             },
         });
         if (alreadyPresent) {
-            return res.status(404).json({
+            return res.status(402).json({
                 body: "user already exsist",
             });
         }
