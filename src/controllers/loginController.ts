@@ -43,7 +43,7 @@ export const signUp = async (req: Request, res: Response) => {
     });
 
     if (alreadyPresent) {
-      return res.status(404).json({
+      return res.status(402).json({
         body: "user already exsist",
       });
     }
