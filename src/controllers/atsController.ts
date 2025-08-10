@@ -55,7 +55,7 @@ export const scanResume = async (req:Request,res:Response) => {
     }
 
     try {
-        const file = fs.readFileSync(req.file.destination + req.file.filename)
+        const file = fs.readFileSync("/tmp"+req.file.destination + req.file.filename)
 
         const data = await  pdf(file)
         
