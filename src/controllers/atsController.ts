@@ -83,15 +83,15 @@ export const scanResume = async (req:Request,res:Response) => {
             body:"Internal servor Error"
         })
     }
-    finally {
-        const filePath = req.file.destination +"/" + req.file.filename
-        fs.unlink(filePath,(err)=>{
-            if(err) {
+    // finally {
+    //     const filePath = req.file.destination +"/" + req.file.filename
+    //     fs.unlink(filePath,(err)=>{
+    //         if(err) {
                 
-                console.error("Failed to delete file:", err);
-            }
-        })
-    }
+    //             console.error("Failed to delete file:", err);
+    //         }
+    //     })
+    // }
 
 }
 
