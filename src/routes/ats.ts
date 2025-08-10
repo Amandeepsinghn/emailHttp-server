@@ -2,12 +2,14 @@ import express, { Router } from "express";
 import { middleware } from "../middleware";
 import { getAllData, getSingleResume, scanResume } from "../controllers/atsController";
 import multer from "multer";
-
+import fs from "fs";
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "/tmp/uploads");
+    const tmpPath = "/tmp/uploads"
+    fs.mkdirSync(tmpPath,{recursive:true})
+    cb(null, tmpPath);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
