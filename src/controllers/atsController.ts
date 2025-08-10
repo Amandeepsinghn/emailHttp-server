@@ -55,7 +55,7 @@ export const scanResume = async (req:Request,res:Response) => {
     }
 
     try {
-        const file = fs.readFileSync("/tmp"+req.file.destination + req.file.filename)
+        const file = fs.readFileSync(req.file.destination +"/" + req.file.filename)
 
         const data = await  pdf(file)
         
@@ -78,20 +78,20 @@ export const scanResume = async (req:Request,res:Response) => {
 
     }
     catch {
-        console.log(req.file.destination)
-        res.status(500).json({
+        // console.log(req.file.destination)
+        return res.status(500).json({
             body:"Internal servor Error"
         })
     }
-    // finally {
-    //     const filePath = req.file.destination + req.file.filename
-    //     fs.unlink(filePath,(err)=>{
-    //         if(err) {
+    finally {
+        const filePath = req.file.destination +"/" + req.file.filename
+        fs.unlink(filePath,(err)=>{
+            if(err) {
                 
-    //             return res.status(500).json({body:"internal server error"})
-    //         }
-    //     })
-    // }
+                console.error("Failed to delete file:", err);
+            }
+        })
+    }
 
 }
 
