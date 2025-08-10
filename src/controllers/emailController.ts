@@ -26,7 +26,7 @@ export const emailSender = async (req: Request, res: Response) => {
       attachments: [
         {
           filename: req.body.filename,
-          path: "emails/" + req.body.filename,
+          path: "tmp/emails/" + req.body.filename,
           contentType: "application/pdf",
         },
       ],
