@@ -10,6 +10,16 @@ import { ats } from "../utils";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const cloudKey = process.env.CLOUDINARY_CLOUD_KEY;
+const cloudSecret = process.env.CLOUDINARY_CLOUD_SECRET;
+
+cloudinary.config({
+  cloud_name: cloudName ?? "",
+  api_key: cloudKey ?? "",
+  api_secret: cloudSecret ?? "",
+});
+
 if (!JWT_SECRET) {
   throw new Error("JWT SECRET is not defined in environment variables.");
 }
@@ -50,45 +60,32 @@ export const scanResume = async (req: Request, res: Response) => {
       body: "invalid user",
     });
   }
+  const publicId = req.file.path;
 
-  try {
-    const file = fs.readFileSync(
-      req.file.destination + "/" + req.file.filename
-    );
+  const url = cloudinary.url(publicId, { resource_type: "raw" });
 
-    const data = await pdf(file);
+  const responseFetch = await fetch(url);
+  if (!responseFetch.ok) throw new Error("Unable to fetch PDF file");
+  const pdfBuffer = await responseFetch.arrayBuffer();
 
-    const response = await ats(data.text);
+  const data = await pdf(Buffer.from(pdfBuffer));
 
-    await prismaClient.ats.create({
-      data: {
-        name: req.file.filename,
-        score: response.score,
-        area_improvement: response.area_improvement,
-        good: response.good,
-        bad: response.bad,
-        userId: req.userId,
-      },
-    });
+  const response = await ats(data.text);
 
-    return res.status(200).json({
-      body: response,
-    });
-  } catch {
-    // console.log(req.file.destination)
-    return res.status(500).json({
-      body: "Internal servor Error",
-    });
-  }
-  // finally {
-  //     const filePath = req.file.destination +"/" + req.file.filename
-  //     fs.unlink(filePath,(err)=>{
-  //         if(err) {
+  await prismaClient.ats.create({
+    data: {
+      name: req.file.filename,
+      score: response.score,
+      area_improvement: response.area_improvement,
+      good: response.good,
+      bad: response.bad,
+      userId: req.userId,
+    },
+  });
 
-  //             console.error("Failed to delete file:", err);
-  //         }
-  //     })
-  // }
+  return res.status(200).json({
+    body: response,
+  });
 };
 
 export const getSingleResume = async (req: Request, res: Response) => {
@@ -107,7 +104,7 @@ export const getSingleResume = async (req: Request, res: Response) => {
   }
 
   try {
-    const data = prismaClient.ats.findUnique({
+    const data = await prismaClient.ats.findUnique({
       where: { id: itemId },
     });
     return res.status(404).json({

@@ -8,19 +8,30 @@ import {
 import multer from "multer";
 import fs from "fs";
 const router = express.Router();
+import * as dotenv from "dotenv";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+import { string } from "zod";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const tmpPath = "/tmp";
-    fs.mkdirSync(tmpPath, { recursive: true });
-    cb(null, tmpPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const cloudKey = process.env.CLOUDINARY_CLOUD_KEY;
+const cloudSecret = process.env.CLOUDINARY_CLOUD_SECRET;
+
+cloudinary.config({
+  cloud_name: cloudName ?? "",
+  api_key: cloudKey ?? "",
+  api_secret: cloudSecret ?? "",
 });
 
-const upload = multer({ storage });
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "uploads",
+    allowedFormats: ["pdf"],
+  } as any,
+});
+
+const upload = multer({ storage: storage });
 
 router.get("/getAllResume", middleware, getAllData);
 router.post("/upload-pdf", middleware, upload.single("file"), scanResume);
