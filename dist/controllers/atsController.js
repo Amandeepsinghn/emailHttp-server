@@ -114,7 +114,7 @@ const scanResume = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             good: response.good,
             bad: response.bad,
             userId: req.userId,
-            resumeUrl: url,
+            resumeUrl: publicId,
         },
     });
     return res.status(200).json({
@@ -159,7 +159,7 @@ const getLatestScore = (req, res) => __awaiter(void 0, void 0, void 0, function*
         where: { userId: req.userId },
     });
     return res.status(200).json({
-        score: data,
+        score: data === null || data === void 0 ? void 0 : data.score,
     });
 });
 exports.getLatestScore = getLatestScore;

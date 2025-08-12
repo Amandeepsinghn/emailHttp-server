@@ -80,7 +80,7 @@ export const scanResume = async (req: Request, res: Response) => {
       good: response.good,
       bad: response.bad,
       userId: req.userId,
-      resumeUrl: url,
+      resumeUrl: publicId,
     },
   });
 
@@ -130,6 +130,6 @@ export const getLatestScore = async (req: Request, res: Response) => {
   });
 
   return res.status(200).json({
-    score: data,
+    score: data?.score,
   });
 };
