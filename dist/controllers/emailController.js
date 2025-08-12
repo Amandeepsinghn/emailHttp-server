@@ -36,7 +36,7 @@ const emailSender = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             attachments: [
                 {
                     filename: req.body.filename,
-                    path: "emails/" + req.body.filename,
+                    path: "tmp/emails/" + req.body.filename,
                     contentType: "application/pdf",
                 },
             ],

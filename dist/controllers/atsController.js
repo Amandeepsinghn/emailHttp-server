@@ -46,35 +46,43 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSingleResume = exports.scanResume = exports.getAllData = void 0;
+const cloudinary_1 = require("cloudinary");
 const dotenv = __importStar(require("dotenv"));
 const prisma_1 = require("../prisma");
-const fs_1 = __importDefault(require("fs"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 dotenv.config();
 const utils_1 = require("../utils");
 const JWT_SECRET = process.env.JWT_SECRET;
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const cloudKey = process.env.CLOUDINARY_CLOUD_KEY;
+const cloudSecret = process.env.CLOUDINARY_CLOUD_SECRET;
+cloudinary_1.v2.config({
+    cloud_name: cloudName !== null && cloudName !== void 0 ? cloudName : "",
+    api_key: cloudKey !== null && cloudKey !== void 0 ? cloudKey : "",
+    api_secret: cloudSecret !== null && cloudSecret !== void 0 ? cloudSecret : "",
+});
 if (!JWT_SECRET) {
     throw new Error("JWT SECRET is not defined in environment variables.");
 }
 const getAllData = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.userId) {
         return res.status(404).json({
-            body: "user does not exsist"
+            body: "user does not exsist",
         });
     }
     try {
         const data = yield prisma_1.prismaClient.email.findMany({
             where: {
-                userId: req.userId
-            }
+                userId: req.userId,
+            },
         });
         res.status(200).json({
-            body: data
+            body: data,
         });
     }
     catch (_a) {
         res.status(500).json({
-            body: "Internal servor Error"
+            body: "Internal servor Error",
         });
     }
 });
@@ -82,70 +90,60 @@ exports.getAllData = getAllData;
 const scanResume = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.file) {
         return res.status(400).json({
-            body: "Please upload a file first"
+            body: "Please upload a file first",
         });
     }
     if (!req.userId) {
         return res.status(400).json({
-            body: "invalid user"
+            body: "invalid user",
         });
     }
-    try {
-        const file = fs_1.default.readFileSync(req.file.destination + req.file.filename);
-        const data = yield (0, pdf_parse_1.default)(file);
-        const response = yield (0, utils_1.ats)(data.text);
-        yield prisma_1.prismaClient.ats.create({
-            data: {
-                name: req.file.filename,
-                score: response.score,
-                area_improvement: response.area_improvement,
-                good: response.good,
-                bad: response.bad,
-                userId: req.userId
-            }
-        });
-        return res.status(200).json({
-            body: response
-        });
-    }
-    catch (_a) {
-        res.status(500).json({
-            body: "Internal servor Error"
-        });
-    }
-    finally {
-        const filePath = req.file.destination + req.file.filename;
-        fs_1.default.unlink(filePath, (err) => {
-            if (err) {
-                return res.status(500).json({ body: "internal server error" });
-            }
-        });
-    }
+    const publicId = req.file.path;
+    const url = cloudinary_1.v2.url(publicId, { resource_type: "raw" });
+    const responseFetch = yield fetch(url);
+    if (!responseFetch.ok)
+        throw new Error("Unable to fetch PDF file");
+    const pdfBuffer = yield responseFetch.arrayBuffer();
+    const data = yield (0, pdf_parse_1.default)(Buffer.from(pdfBuffer));
+    const response = yield (0, utils_1.ats)(data.text);
+    yield prisma_1.prismaClient.ats.create({
+        data: {
+            name: req.file.filename,
+            score: response.score,
+            area_improvement: response.area_improvement,
+            good: response.good,
+            bad: response.bad,
+            userId: req.userId,
+        },
+    });
+    return res.status(200).json({
+        body: response,
+    });
 });
 exports.scanResume = scanResume;
 const getSingleResume = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.userId) {
         return res.status(404).json({
-            body: "userId does not exsist"
+            body: "userId does not exsist",
         });
     }
     const itemId = req.params.itemId;
     if (!itemId) {
         return res.status(404).json({
-            body: "wrong itemId"
+            body: "wrong itemId",
         });
     }
     try {
-        const data = prisma_1.prismaClient.ats.findUnique({
-            where: { id: itemId }
+        const data = yield prisma_1.prismaClient.ats.findUnique({
+            where: { id: itemId },
         });
         return res.status(404).json({
-            body: data
+            body: data,
         });
     }
     catch (_a) {
         res.status(500).json({
-            body: "Internal servor Error"
+            body: "Internal servor Error",
         });
     }
 });
