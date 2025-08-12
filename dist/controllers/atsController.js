@@ -71,7 +71,7 @@ const getAllData = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         });
     }
     try {
-        const data = yield prisma_1.prismaClient.email.findMany({
+        const data = yield prisma_1.prismaClient.ats.findMany({
             where: {
                 userId: req.userId,
             },
