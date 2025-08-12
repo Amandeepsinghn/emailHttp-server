@@ -30,5 +30,6 @@ const upload = (0, multer_1.default)({ storage: storage });
 router.get("/getAllResume", middleware_1.middleware, atsController_1.getAllData);
 router.post("/upload-pdf", middleware_1.middleware, upload.single("file"), atsController_1.scanResume);
 router.get("/item/:itemId", middleware_1.middleware, atsController_1.getSingleResume);
+router.get("/getLatestScore", middleware_1.middleware, atsController_1.getLatestScore);
 exports.atsRouter = router;
 //# sourceMappingURL=ats.js.map

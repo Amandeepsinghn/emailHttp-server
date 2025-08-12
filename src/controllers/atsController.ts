@@ -80,6 +80,7 @@ export const scanResume = async (req: Request, res: Response) => {
       good: response.good,
       bad: response.bad,
       userId: req.userId,
+      resumeUrl: url,
     },
   });
 
@@ -115,4 +116,20 @@ export const getSingleResume = async (req: Request, res: Response) => {
       body: "Internal servor Error",
     });
   }
+};
+
+export const getLatestScore = async (req: Request, res: Response) => {
+  if (!req.userId) {
+    return res.status(404).json({
+      body: "userId does not exsist",
+    });
+  }
+
+  const data = await prismaClient.ats.findFirst({
+    where: { userId: req.userId },
+  });
+
+  return res.status(200).json({
+    score: data,
+  });
 };

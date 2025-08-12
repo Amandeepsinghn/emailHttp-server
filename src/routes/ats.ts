@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import { middleware } from "../middleware";
 import {
   getAllData,
+  getLatestScore,
   getSingleResume,
   scanResume,
 } from "../controllers/atsController";
@@ -36,5 +37,6 @@ const upload = multer({ storage: storage });
 router.get("/getAllResume", middleware, getAllData);
 router.post("/upload-pdf", middleware, upload.single("file"), scanResume);
 router.get("/item/:itemId", middleware, getSingleResume);
+router.get("/getLatestScore", middleware, getLatestScore);
 
 export const atsRouter: Router = router;

@@ -35,6 +35,7 @@ model Ats {
   area_improvement  String[]
   userId            String 
   admin             User     @relation(fields: [userId],references: [id])  
+  resumeUrl         String
 }
 
 model Blogs {

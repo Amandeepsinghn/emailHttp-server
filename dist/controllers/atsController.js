@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSingleResume = exports.scanResume = exports.getAllData = void 0;
+exports.getLatestScore = exports.getSingleResume = exports.scanResume = exports.getAllData = void 0;
 const cloudinary_1 = require("cloudinary");
 const dotenv = __importStar(require("dotenv"));
 const prisma_1 = require("../prisma");
@@ -114,6 +114,7 @@ const scanResume = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             good: response.good,
             bad: response.bad,
             userId: req.userId,
+            resumeUrl: url,
         },
     });
     return res.status(200).json({
@@ -148,4 +149,18 @@ const getSingleResume = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getSingleResume = getSingleResume;
+const getLatestScore = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.userId) {
+        return res.status(404).json({
+            body: "userId does not exsist",
+        });
+    }
+    const data = yield prisma_1.prismaClient.ats.findFirst({
+        where: { userId: req.userId },
+    });
+    return res.status(200).json({
+        score: data,
+    });
+});
+exports.getLatestScore = getLatestScore;
 //# sourceMappingURL=atsController.js.map
