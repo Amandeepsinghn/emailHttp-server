@@ -32,7 +32,7 @@ export const getAllData = async (req: Request, res: Response) => {
   }
 
   try {
-    const data = await prismaClient.email.findMany({
+    const data = await prismaClient.ats.findMany({
       where: {
         userId: req.userId,
       },
