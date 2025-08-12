@@ -21,10 +21,11 @@ cloudinary_1.v2.config({
 });
 const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinary_1.v2,
-    params: {
+    params: (req, res) => ({
         folder: "uploads",
         allowedFormats: ["pdf"],
-    },
+        public_id: res.originalname,
+    }),
 });
 const upload = (0, multer_1.default)({ storage: storage });
 router.get("/getAllResume", middleware_1.middleware, atsController_1.getAllData);

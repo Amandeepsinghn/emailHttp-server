@@ -26,10 +26,12 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: "uploads",
-    allowedFormats: ["pdf"],
-  } as any,
+  params: (req, res) =>
+    ({
+      folder: "uploads",
+      allowedFormats: ["pdf"],
+      public_id: res.originalname,
+    } as any),
 });
 
 const upload = multer({ storage: storage });
