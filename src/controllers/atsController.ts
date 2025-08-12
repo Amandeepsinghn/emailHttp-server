@@ -131,5 +131,6 @@ export const getLatestScore = async (req: Request, res: Response) => {
 
   return res.status(200).json({
     score: data?.score,
+    name: data?.name,
   });
 };

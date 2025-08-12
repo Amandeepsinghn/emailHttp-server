@@ -160,6 +160,7 @@ const getLatestScore = (req, res) => __awaiter(void 0, void 0, void 0, function*
     });
     return res.status(200).json({
         score: data === null || data === void 0 ? void 0 : data.score,
+        name: data === null || data === void 0 ? void 0 : data.name,
     });
 });
 exports.getLatestScore = getLatestScore;
