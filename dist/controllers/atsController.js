@@ -138,7 +138,7 @@ const getSingleResume = (req, res) => __awaiter(void 0, void 0, void 0, function
         const data = yield prisma_1.prismaClient.ats.findUnique({
             where: { id: itemId },
         });
-        return res.status(404).json({
+        return res.status(200).json({
             body: data,
         });
     }

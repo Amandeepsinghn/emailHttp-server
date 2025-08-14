@@ -108,7 +108,7 @@ export const getSingleResume = async (req: Request, res: Response) => {
     const data = await prismaClient.ats.findUnique({
       where: { id: itemId },
     });
-    return res.status(404).json({
+    return res.status(200).json({
       body: data,
     });
   } catch {
