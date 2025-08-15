@@ -72,7 +72,7 @@ export const scanResume = async (req: Request, res: Response) => {
 
   const response = await ats(data.text);
 
-  await prismaClient.ats.create({
+  const resumeData = await prismaClient.ats.create({
     data: {
       name: req.file.filename,
       score: response.score,
@@ -85,7 +85,7 @@ export const scanResume = async (req: Request, res: Response) => {
   });
 
   return res.status(200).json({
-    body: response,
+    body: resumeData.id,
   });
 };
 

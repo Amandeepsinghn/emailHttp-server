@@ -106,7 +106,7 @@ const scanResume = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const pdfBuffer = yield responseFetch.arrayBuffer();
     const data = yield (0, pdf_parse_1.default)(Buffer.from(pdfBuffer));
     const response = yield (0, utils_1.ats)(data.text);
-    yield prisma_1.prismaClient.ats.create({
+    const resumeData = yield prisma_1.prismaClient.ats.create({
         data: {
             name: req.file.filename,
             score: response.score,
@@ -118,7 +118,7 @@ const scanResume = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         },
     });
     return res.status(200).json({
-        body: response,
+        body: resumeData.id,
     });
 });
 exports.scanResume = scanResume;
