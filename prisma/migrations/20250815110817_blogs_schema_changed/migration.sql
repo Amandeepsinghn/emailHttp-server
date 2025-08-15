@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "public"."Blogs" ADD COLUMN     "blog_1" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "blog_2" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "blog_3" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "blog_4" BOOLEAN NOT NULL DEFAULT false;

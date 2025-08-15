@@ -45,7 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogsInfo = exports.dashboardInfo = exports.logIn = exports.signUp = exports.logInBody = exports.signUpBody = void 0;
+exports.updateBlogs = exports.blogsInfo = exports.dashboardInfo = exports.logIn = exports.signUp = exports.logInBody = exports.signUpBody = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv = __importStar(require("dotenv"));
 const zod_1 = require("zod");
@@ -179,13 +179,24 @@ const blogsInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
     try {
-        const data = yield prisma_1.prismaClient.blogs.upsert({
+        const data = yield prisma_1.prismaClient.blogs.findFirst({
             where: { userId: req.userId },
-            update: { count: user.count },
-            create: { userId: req.userId, count: user.count },
         });
+        let count = 0;
+        if ((data === null || data === void 0 ? void 0 : data.blog_1) === true) {
+            count += 1;
+        }
+        if ((data === null || data === void 0 ? void 0 : data.blog_2) === true) {
+            count += 1;
+        }
+        if ((data === null || data === void 0 ? void 0 : data.blog_3) === true) {
+            count += 1;
+        }
+        if ((data === null || data === void 0 ? void 0 : data.blog_4) === true) {
+            count += 1;
+        }
         return res.status(200).json({
-            count: data.count,
+            score: count,
         });
     }
     catch (_a) {
@@ -195,4 +206,18 @@ const blogsInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.blogsInfo = blogsInfo;
+const updateBlogs = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.body;
+    if (!req.userId) {
+        return res.status(404).json({
+            body: "does not found the field",
+        });
+    }
+    const data = yield prisma_1.prismaClient.blogs.update({
+        where: { userId: req.userId },
+        data: req.body,
+    });
+    return res.send("updated successful");
+});
+exports.updateBlogs = updateBlogs;
 //# sourceMappingURL=loginController.js.map

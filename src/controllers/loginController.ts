@@ -151,18 +151,48 @@ export const blogsInfo = async (req: Request, res: Response) => {
   }
 
   try {
-    const data = await prismaClient.blogs.upsert({
+    const data = await prismaClient.blogs.findFirst({
       where: { userId: req.userId },
-      update: { count: user.count },
-      create: { userId: req.userId, count: user.count },
     });
 
+    let count = 0;
+
+    if (data?.blog_1 === true) {
+      count += 1;
+    }
+    if (data?.blog_2 === true) {
+      count += 1;
+    }
+    if (data?.blog_3 === true) {
+      count += 1;
+    }
+    if (data?.blog_4 === true) {
+      count += 1;
+    }
+
     return res.status(200).json({
-      count: data.count,
+      score: count,
     });
   } catch {
     res.status(500).json({
       body: "Internal server error",
     });
   }
+};
+
+export const updateBlogs = async (req: Request, res: Response) => {
+  const user = req.body;
+
+  if (!req.userId) {
+    return res.status(404).json({
+      body: "does not found the field",
+    });
+  }
+
+  const data = await prismaClient.blogs.update({
+    where: { userId: req.userId },
+    data: req.body,
+  });
+
+  return res.send("updated successful");
 };

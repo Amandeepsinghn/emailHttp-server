@@ -41,6 +41,10 @@ model Ats {
 model Blogs {
   id                String   @id   @default(uuid())
   count             Int 
+  blog_1            Boolean  @default(false)
+  blog_2            Boolean  @default(false)
+  blog_3            Boolean  @default(false)
+  blog_4            Boolean  @default(false)
   userId            String   @unique
   admin             User   @relation(fields: [userId], references: [id])
 }
