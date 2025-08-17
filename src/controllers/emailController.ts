@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { Request, Response } from "express";
 import { prismaClient } from "../prisma";
+import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import pdf from "pdf-parse";
 import { formalBody, pdfScan } from "../utils";
@@ -50,15 +51,18 @@ export const uploadResume = async (req: Request, res: Response) => {
     });
   }
 
-  try {
-    return res.status(200).json({
-      body: req.file.filename,
-    });
-  } catch {
-    res.status(500).json({
-      body: "Internal servor Error",
+  if (!req.userId) {
+    return res.status(400).json({
+      body: "invalid user",
     });
   }
+  const publicId = req.file.path;
+
+  const url = cloudinary.url(publicId, { resource_type: "raw" });
+
+  return res.status(200).json({
+    body: url,
+  });
 };
 
 export const formalTone = async (req: Request, res: Response) => {
@@ -79,9 +83,13 @@ export const formalTone = async (req: Request, res: Response) => {
 
 export const pdfBody = async (req: Request, res: Response) => {
   try {
-    const file = fs.readFileSync("emails/" + req.body.filename);
+    const url = req.body.data;
 
-    const data = await pdf(file);
+    const responseFetch = await fetch(url);
+    if (!responseFetch.ok) throw new Error("Unable to fetch PDF file");
+    const pdfBuffer = await responseFetch.arrayBuffer();
+
+    const data = await pdf(Buffer.from(pdfBuffer));
 
     const response = await pdfScan(data.text);
 

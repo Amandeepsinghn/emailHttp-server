@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pdfBody = exports.formalTone = exports.uploadResume = exports.emailSender = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const cloudinary_1 = require("cloudinary");
 const fs_1 = __importDefault(require("fs"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const utils_1 = require("../utils");
@@ -57,16 +58,16 @@ const uploadResume = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             body: "Please upload a file first",
         });
     }
-    try {
-        return res.status(200).json({
-            body: req.file.filename,
+    if (!req.userId) {
+        return res.status(400).json({
+            body: "invalid user",
         });
     }
-    catch (_a) {
-        res.status(500).json({
-            body: "Internal servor Error",
-        });
-    }
+    const publicId = req.file.path;
+    const url = cloudinary_1.v2.url(publicId, { resource_type: "raw" });
+    return res.status(200).json({
+        body: url,
+    });
 });
 exports.uploadResume = uploadResume;
 const formalTone = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -86,8 +87,12 @@ const formalTone = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.formalTone = formalTone;
 const pdfBody = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const file = fs_1.default.readFileSync("emails/" + req.body.filename);
-        const data = yield (0, pdf_parse_1.default)(file);
+        const url = req.body.data;
+        const responseFetch = yield fetch(url);
+        if (!responseFetch.ok)
+            throw new Error("Unable to fetch PDF file");
+        const pdfBuffer = yield responseFetch.arrayBuffer();
+        const data = yield (0, pdf_parse_1.default)(Buffer.from(pdfBuffer));
         const response = yield (0, utils_1.pdfScan)(data.text);
         return res.status(200).json({
             body: response,
