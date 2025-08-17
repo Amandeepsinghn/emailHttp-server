@@ -30,7 +30,7 @@ const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
 const upload = (0, multer_1.default)({ storage: storage });
 router.post("/sendEmail", middleware_1.middleware, emailController_1.emailSender);
 router.post("/uploadResume", middleware_1.middleware, upload.single("file"), emailController_1.uploadResume);
-router.get("/pdfbody", middleware_1.middleware, emailController_1.pdfBody);
+router.post("/pdfbody", middleware_1.middleware, emailController_1.pdfBody);
 router.post("/formalTone", middleware_1.middleware, emailController_1.formalTone);
 exports.emailRouter = router;
 //# sourceMappingURL=email.js.map
