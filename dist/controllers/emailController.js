@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pdfBody = exports.formalTone = exports.uploadResume = exports.emailSender = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const cloudinary_1 = require("cloudinary");
-const fs_1 = __importDefault(require("fs"));
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const utils_1 = require("../utils");
 const zod_1 = require("zod");
@@ -72,8 +71,8 @@ const emailSender = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         }
     }
     // Removing the pdf file
-    const filePath = "emails/" + req.body.filename;
-    fs_1.default.unlinkSync(filePath);
+    // const filePath = "emails/" + req.body.filename;
+    // fs.unlinkSync(filePath);
     return res.status(200).json({
         body: "mail has been sent successfully",
     });

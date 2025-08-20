@@ -71,8 +71,8 @@ export const emailSender = async (req: Request, res: Response) => {
     }
   }
   // Removing the pdf file
-  const filePath = "emails/" + req.body.filename;
-  fs.unlinkSync(filePath);
+  // const filePath = "emails/" + req.body.filename;
+  // fs.unlinkSync(filePath);
 
   return res.status(200).json({
     body: "mail has been sent successfully",
