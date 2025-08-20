@@ -5,35 +5,70 @@ import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import pdf from "pdf-parse";
 import { formalBody, pdfScan } from "../utils";
-import { file } from "zod";
+import { file, success } from "zod";
+import { buffer } from "stream/consumers";
+import { z } from "zod";
+
+const emailSchema = z.object({
+  email: z.email(),
+  emailSender: z.array(z.email()),
+  subject: z.string().min(1, "subject is required"),
+  password: z.string().min(1, "please provide valid password"),
+  resumeUrl: z.string(),
+  text: z.string().min(1, "please write body"),
+  filename: z.string(),
+  appPassword: z.string().min(1, "please write app password"),
+});
 
 export const emailSender = async (req: Request, res: Response) => {
+  const result = emailSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      error: result.error,
+    });
+  }
+
+  const data = result.data;
+
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
-      user: req.body.email,
-      pass: req.body.password,
+      user: data.email,
+      pass: data.password,
     },
   });
 
-  for (let i = 0; i < req.body.emailSender.length; i++) {
+  const response = await fetch(data.resumeUrl);
+
+  if (!response.ok) throw new Error("Failed to fetch PDF from Cloudinary");
+
+  const pdfBuffer = await response.arrayBuffer();
+
+  for (let i = 0; i < data.emailSender.length; i++) {
     const mailOptions = {
-      from: req.body.email,
-      to: req.body.emailSender[i],
-      subject: req.body.subject,
-      text: req.body.text,
+      from: data.email,
+      to: data.emailSender[i],
+      subject: data.subject,
+      text: data.text,
       attachments: [
         {
-          filename: req.body.filename,
-          path: "tmp/emails/" + req.body.filename,
+          filename: data.filename,
+          content: Buffer.from(pdfBuffer),
           contentType: "application/pdf",
         },
       ],
     };
 
-    await transporter.sendMail(mailOptions);
+    const resume = await transporter.sendMail(mailOptions);
+
+    if (!resume.response) {
+      return res.status(401).json({
+        body: "app password is incorrect",
+      });
+    }
   }
   // Removing the pdf file
   const filePath = "emails/" + req.body.filename;
