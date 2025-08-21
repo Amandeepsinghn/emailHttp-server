@@ -69,7 +69,7 @@ export const logIn = async (req: Request, res: Response) => {
   const data = logInBody.safeParse(req.body);
 
   if (!data.success) {
-    return res.status(404).json({
+    return res.status(401).json({
       body: "please enter valid email,password",
     });
   }
@@ -83,7 +83,7 @@ export const logIn = async (req: Request, res: Response) => {
     });
 
     if (!user) {
-      res.status(404).json({
+      res.status(401).json({
         body: "user does not exsist",
       });
       return;
