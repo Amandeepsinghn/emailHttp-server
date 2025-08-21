@@ -109,7 +109,7 @@ export const dashboardInfo = async (req: Request, res: Response) => {
   }
 
   try {
-    const countEmail = await prismaClient.email.count({
+    const countEmail = await prismaClient.email.findFirst({
       where: {
         userId: req.userId,
       },
@@ -129,7 +129,7 @@ export const dashboardInfo = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       body: {
-        email: countEmail,
+        email: countEmail?.count,
         ats: countAts,
         blog: countBlog,
       },

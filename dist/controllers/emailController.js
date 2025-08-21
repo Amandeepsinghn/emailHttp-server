@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pdfBody = exports.formalTone = exports.uploadResume = exports.emailSender = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
+const prisma_1 = require("../prisma");
 const cloudinary_1 = require("cloudinary");
 const pdf_parse_1 = __importDefault(require("pdf-parse"));
 const utils_1 = require("../utils");
@@ -35,6 +36,9 @@ const emailSender = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             error: result.error,
         });
     }
+    if (!req.userId) {
+        return res.send("user does not exsist");
+    }
     const data = result.data;
     const transporter = nodemailer_1.default.createTransport({
         host: "smtp.gmail.com",
@@ -49,7 +53,9 @@ const emailSender = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     if (!response.ok)
         throw new Error("Failed to fetch PDF from Cloudinary");
     const pdfBuffer = yield response.arrayBuffer();
+    let emailCount = 0;
     for (let i = 0; i < data.emailSender.length; i++) {
+        emailCount += 1;
         const mailOptions = {
             from: data.email,
             to: data.emailSender[i],
@@ -73,6 +79,18 @@ const emailSender = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     // Removing the pdf file
     // const filePath = "emails/" + req.body.filename;
     // fs.unlinkSync(filePath);
+    yield prisma_1.prismaClient.email.upsert({
+        where: {
+            userId: req.userId,
+        },
+        update: {
+            count: { increment: emailCount },
+        },
+        create: {
+            userId: req.userId,
+            count: emailCount,
+        },
+    });
     return res.status(200).json({
         body: "mail has been sent successfully",
     });

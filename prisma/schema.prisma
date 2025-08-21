@@ -20,9 +20,8 @@ model User {
 
 model Email {
   id         String   @id @default(uuid())
-  body       String 
-  subject    String
-  userId     String
+  userId     String   @unique
+  count      Int
   admin      User     @relation(fields: [userId],references: [id]) 
 }
 

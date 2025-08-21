@@ -8,6 +8,7 @@ import { formalBody, pdfScan } from "../utils";
 import { file, success } from "zod";
 import { buffer } from "stream/consumers";
 import { z } from "zod";
+import { primitiveTypes } from "zod/v4/core/util.cjs";
 
 const emailSchema = z.object({
   email: z.email(),
@@ -29,6 +30,10 @@ export const emailSender = async (req: Request, res: Response) => {
     });
   }
 
+  if (!req.userId) {
+    return res.send("user does not exsist");
+  }
+
   const data = result.data;
 
   const transporter = nodemailer.createTransport({
@@ -47,7 +52,10 @@ export const emailSender = async (req: Request, res: Response) => {
 
   const pdfBuffer = await response.arrayBuffer();
 
+  let emailCount = 0;
+
   for (let i = 0; i < data.emailSender.length; i++) {
+    emailCount += 1;
     const mailOptions = {
       from: data.email,
       to: data.emailSender[i],
@@ -70,9 +78,22 @@ export const emailSender = async (req: Request, res: Response) => {
       });
     }
   }
+
   // Removing the pdf file
   // const filePath = "emails/" + req.body.filename;
   // fs.unlinkSync(filePath);
+  await prismaClient.email.upsert({
+    where: {
+      userId: req.userId,
+    },
+    update: {
+      count: { increment: emailCount },
+    },
+    create: {
+      userId: req.userId,
+      count: emailCount,
+    },
+  });
 
   return res.status(200).json({
     body: "mail has been sent successfully",

@@ -141,7 +141,7 @@ const dashboardInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
     try {
-        const countEmail = yield prisma_1.prismaClient.email.count({
+        const countEmail = yield prisma_1.prismaClient.email.findFirst({
             where: {
                 userId: req.userId,
             },
@@ -158,7 +158,7 @@ const dashboardInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
         return res.status(200).json({
             body: {
-                email: countEmail,
+                email: countEmail === null || countEmail === void 0 ? void 0 : countEmail.count,
                 ats: countAts,
                 blog: countBlog,
             },
